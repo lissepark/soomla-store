@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">SoomlaAndroidStoreExampleVedi</string>
+
+    <string name="soomla_store_android">Store Android</string>
+    <string name="action_settings">Settings</string>
+    <string name="button_restore">Restore Transactions</string>
+    <string name="button_buypack">Buy Packs</string>
+
+</resources>
