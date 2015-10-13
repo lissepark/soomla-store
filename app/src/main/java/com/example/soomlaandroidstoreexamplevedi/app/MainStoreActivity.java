@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import com.soomla.store.billing.google.GooglePlayIabService;
 import com.soomla.store.data.StorageManager;
 import com.soomla.store.data.StoreInfo;
 import com.soomla.store.domain.virtualCurrencies.VirtualCurrency;
+import com.soomla.store.domain.virtualCurrencies.VirtualCurrencyPack;
 import com.soomla.store.domain.virtualGoods.VirtualGood;
 import com.soomla.store.events.GoodBalanceChangedEvent;
 import com.soomla.store.exceptions.InsufficientFundsException;
@@ -34,6 +36,7 @@ import com.soomla.store.purchaseTypes.PurchaseWithMarket;
 import com.soomla.store.purchaseTypes.PurchaseWithVirtualItem;
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -42,6 +45,10 @@ public class MainStoreActivity extends ActionBarActivity {
     private Handler mHandler = new Handler();
     private ExampleEventHandler mEventHandler;
     private HashMap<String, Object> mGoodsName;
+    ListView mListOfTestsMain;
+    ArrayAdapter<String> mAdapterListOfTestsMain;
+    ArrayList<String> mTestsMsg;
+
 
     /**
      * Called when the activity starts.
@@ -51,6 +58,11 @@ public class MainStoreActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_store);
+        if (savedInstanceState!=null){
+            mTestsMsg = savedInstanceState.getStringArrayList("alist");
+        } else {
+            mTestsMsg = new ArrayList<String>();
+        }
 
         mEventHandler = new ExampleEventHandler(mHandler,this);
         mGoodsName = generateNamesHash();
@@ -67,8 +79,6 @@ public class MainStoreActivity extends ActionBarActivity {
             put("refreshToken", "1/xxx");
         }});
 
-
-        final Activity activity = this;
         StoreAdapter mStoreAdapter = new StoreAdapter();
         ListView list = (ListView) findViewById(R.id.list);
         list.setAdapter(mStoreAdapter);
@@ -85,14 +95,11 @@ public class MainStoreActivity extends ActionBarActivity {
                 Intent intent = new Intent(getApplicationContext(), StoreGoodActivity.class);
                 intent.putExtra("GoodItemId",good.getItemId());
                 startActivity(intent);
-
-
-
             }
         });
 
-        Button buttonBuyPacks = (Button)findViewById(R.id.button_buy_packs);
-        buttonBuyPacks.setOnClickListener(new View.OnClickListener() {
+        Button buttonGet1000Muf = (Button)findViewById(R.id.button_buy_packs);
+        buttonGet1000Muf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //FOR TESTING PURPOSES ONLY: Check if it's a first run, if so add 10000 currencies.
@@ -108,12 +115,35 @@ public class MainStoreActivity extends ActionBarActivity {
                         SharedPreferences.Editor edit = prefs.edit();
                         edit.putBoolean("FIRST_RUN", true);
                         edit.commit();
+                        Log.d("woooork","you got 1000 Muffins");
+                        mTestsMsg.add("you got 1000 Muffins");
+                        mAdapterListOfTestsMain.notifyDataSetChanged();
                     } catch (VirtualItemNotFoundException e) {
                         SoomlaUtils.LogError("Example Activity", "Couldn't add first 10000 currencies.");
+                        Log.d("woooork","Couldn't add first 10000 currencies.");
+                        mTestsMsg.add("Couldn't add first 10000 currencies.");
+                        mAdapterListOfTestsMain.notifyDataSetChanged();
                     }
+                }else{
+                    mTestsMsg.add("It's not first run. You have got 1000 muffins already");
+                    mAdapterListOfTestsMain.notifyDataSetChanged();
                 }
             }
         });
+
+        mListOfTestsMain = (ListView)findViewById(R.id.listTestsResult);
+
+        mAdapterListOfTestsMain = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1,mTestsMsg){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+                View view = super.getView(position,convertView,parent);
+                TextView text = (TextView)view.findViewById(android.R.id.text1);
+                text.setTextColor(Color.BLUE);
+                return view;
+            }
+        };
+
+        mListOfTestsMain.setAdapter(mAdapterListOfTestsMain);
     }
 
     @Override
@@ -147,7 +177,6 @@ public class MainStoreActivity extends ActionBarActivity {
             return position;
         }
 
-        //@Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View vi = convertView;
             if(convertView == null){
@@ -158,34 +187,14 @@ public class MainStoreActivity extends ActionBarActivity {
 
             VirtualGood good = StoreInfo.getGoods().get(position);
             title.setText(good.getName());
-
-            // Setting all values in listview
-            //vi.setTag(good.getItemId());
-            //title.setText(good.getName());
-            //content.setText(good.getDescription());
-
-            //int balance = StorageManager.getVirtualGoodsStorage().getBalance(good.getItemId());
-
-           // if (good.getPurchaseType() instanceof PurchaseWithVirtualItem)
-           // {
-                //info.setText("price: " + ((PurchaseWithVirtualItem)(good.getPurchaseType())).getAmount() +
-                 //       " balance: " + balance);
-           // }
-
-           // else if (good.getPurchaseType() instanceof PurchaseWithMarket)
-           // {
-                //info.setText("price: $" + ((PurchaseWithMarket)(good.getPurchaseType())).getMarketItem().getPrice() +
-                 //       " balance: " +balance);
-          //  }
             return vi;
         }
     }
 
-/*
-    private void openStore() {
-        Intent intent = new Intent(getApplicationContext(), StoreGoodsActivity.class);
-        startActivity(intent);
-        robotBackHome();
+    @Override
+    public void onSaveInstanceState(Bundle savedInstance){
+        super.onSaveInstanceState(savedInstance);
+        ArrayList<String> al = mTestsMsg;
+        savedInstance.putStringArrayList("alist",al);
     }
-*/
 }

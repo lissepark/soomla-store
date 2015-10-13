@@ -38,11 +38,22 @@
                 android:id="@+id/button_restore_trans"
                 />
         <Button
-                android:text="@string/button_buypack"
+                android:text="@string/button_get1000muf"
                 android:layout_width="150dp"
                 android:layout_height="80dp"
                 android:id="@+id/button_buy_packs"
                 android:layout_toRightOf="@id/button_restore_trans"/>
-
     </LinearLayout>
+
+    <ListView
+            android:id="@+id/listTestsResult"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:layout_below="@+id/store"
+            android:layout_weight="1"
+            android:dividerHeight="2sp"
+            android:cacheColorHint="@android:color/transparent"
+            android:transcriptMode="alwaysScroll"
+            android:stackFromBottom="true"/>
+
 </LinearLayout>
